@@ -8,156 +8,14 @@ import time
 
 import matplotlib.pyplot as plt
 
-# %matplotlib inline
-# import matplotlib_inline.backend_inline
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as data
 from matplotlib.colors import to_rgba
 from torch import Tensor
-# from tqdm.notebook import tqdm  # Progress bar
 from tqdm.auto import tqdm
 
-# matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
-
-torch.manual_seed(42)  # Setting the seed
-
-x = Tensor(2, 3, 4)
-print(x)
-
-x = Tensor([[1, 2], [3, 4]])
-print(x)
-
-x = torch.rand(2, 3, 4)
-print(x)
-
-shape = x.shape
-print("Shape:", x.shape)
-
-size = x.size()
-print("Size:", size)
-
-dim1, dim2, dim3 = x.size()
-print("Size:", dim1, dim2, dim3)
-
-np_arr = np.array([[1, 2], [3, 4]])
-tensor = torch.from_numpy(np_arr)
-
-print("Numpy array:", np_arr)
-print("PyTorch tensor:", tensor)
-
-tensor = torch.arange(4)
-np_arr = tensor.numpy()
-
-print("PyTorch tensor:", tensor)
-print("Numpy array:", np_arr)
-
-x1 = torch.rand(2, 3)
-x2 = torch.rand(2, 3)
-y = x1 + x2
-
-print("X1", x1)
-print("X2", x2)
-print("Y", y)
-
-x1 = torch.rand(2, 3)
-x2 = torch.rand(2, 3)
-print("X1 (before)", x1)
-print("X2 (before)", x2)
-
-x2.add_(x1)
-print("X1 (after)", x1)
-print("X2 (after)", x2)
-
-x = torch.arange(6)
-print("X", x)
-
-x = x.view(2, 3)
-print("X", x)
-
-x = x.permute(1, 0)  # Swapping dimension 0 and 1
-print("X", x)
-
-x = torch.arange(6)
-x = x.view(2, 3)
-print("X", x)
-
-W = torch.arange(9).view(3, 3)  # We can also stack multiple operations in a single line
-print("W", W)
-
-h = torch.matmul(x, W)  # Verify the result by calculating it by hand too!
-print("h", h)
-
-x = torch.arange(12).view(3, 4)
-print("X", x)
-
-print(x[:, 1])  # Second column
-
-print(x[0])  # First row
-
-print(x[:2, -1])  # First two rows, last column
-
-print(x[1:3, :])  # Middle two rows
-
-x = torch.ones((3,))
-print(x.requires_grad)
-
-x.requires_grad_(True)
-print(x.requires_grad)
-
-x = torch.arange(3, dtype=torch.float32, requires_grad=True)  # Only float tensors can have gradients
-print("X", x)
-
-a = x + 2
-b = a**2
-c = b + 3
-y = c.mean()
-print("Y", y)
-
-y.backward()
-
-print(x.grad)
-
-gpu_avail = torch.cuda.is_available()
-print(f"Is the GPU available? {gpu_avail}")
-
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-print("Device", device)
-
-x = torch.zeros(2, 3)
-x = x.to(device)
-print("X", x)
-
-x = torch.randn(5000, 5000)
-
-# CPU version
-start_time = time.time()
-_ = torch.matmul(x, x)
-end_time = time.time()
-print(f"CPU time: {(end_time - start_time):6.5f}s")
-
-# GPU version
-if torch.cuda.is_available():
-    x = x.to(device)
-    # CUDA is asynchronous, so we need to use different timing functions
-    start = torch.cuda.Event(enable_timing=True)
-    end = torch.cuda.Event(enable_timing=True)
-    start.record()
-    _ = torch.matmul(x, x)
-    end.record()
-    torch.cuda.synchronize()  # Waits for everything to finish running on the GPU
-    print(f"GPU time: {0.001 * start.elapsed_time(end):6.5f}s")  # Milliseconds to seconds
-
-# GPU operations have a separate seed we also want to set
-if torch.cuda.is_available():
-    torch.cuda.manual_seed(42)
-    torch.cuda.manual_seed_all(42)
-
-# Additionally, some operations on a GPU are implemented stochastic for efficiency
-# We want to ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
 
 class MyModule(nn.Module):
     def __init__(self):
@@ -183,14 +41,6 @@ class SimpleClassifier(nn.Module):
         x = self.act_fn(x)
         x = self.linear2(x)
         return x
-
-
-model = SimpleClassifier(num_inputs=2, num_hidden=4, num_outputs=1)
-# Printing a module shows all its submodules
-print(model)
-
-for name, param in model.named_parameters():
-    print(f"Parameter {name}, shape {param.shape}")
 
 
 class XORDataset(data.Dataset):
@@ -231,10 +81,6 @@ class XORDataset(data.Dataset):
         return data_point, data_label
 
 
-dataset = XORDataset(size=200)
-print("Size of dataset:", len(dataset))
-print("Data point 0:", dataset[0])
-
 def visualize_samples(data, label):
     if isinstance(data, Tensor):
         data = data.cpu().numpy()
@@ -251,28 +97,6 @@ def visualize_samples(data, label):
     plt.xlabel(r"$x_1$")
     plt.legend()
 
-
-visualize_samples(dataset.data, dataset.label)
-plt.show()
-
-data_loader = data.DataLoader(dataset, batch_size=8, shuffle=True)
-
-data_inputs, data_labels = next(iter(data_loader))
-
-# The shape of the outputs are [batch_size, d_1,...,d_N] where d_1,...,d_N are the
-# dimensions of the data point returned from the dataset class
-print("Data inputs", data_inputs.shape, "\n", data_inputs)
-print("Data labels", data_labels.shape, "\n", data_labels)
-
-loss_module = nn.BCEWithLogitsLoss()
-
-optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
-
-train_dataset = XORDataset(size=1000)
-train_data_loader = data.DataLoader(train_dataset, batch_size=128, shuffle=True)
-
-# Push model to device. Has to be only done once
-model.to(device)
 
 def train_model(model, optimizer, data_loader, loss_module, num_epochs=100):
     # Set model to train mode
@@ -303,29 +127,6 @@ def train_model(model, optimizer, data_loader, loss_module, num_epochs=100):
             optimizer.step()
 
 
-train_model(model, optimizer, train_data_loader, loss_module)
-
-state_dict = model.state_dict()
-print(state_dict)
-
-# torch.save(object, filename). For the filename, any extension can be used
-torch.save(state_dict, "our_model.tar")
-
-# Load state dict from the disk (make sure it is the same name as above)
-state_dict = torch.load("our_model.tar")
-
-# Create a new model and load the state
-new_model = SimpleClassifier(num_inputs=2, num_hidden=4, num_outputs=1)
-new_model.load_state_dict(state_dict)
-
-# Verify that the parameters are the same
-print("Original model\n", model.state_dict())
-print("\nLoaded model\n", new_model.state_dict())
-
-test_dataset = XORDataset(size=500)
-# drop_last -> Don't drop the last batch although it is smaller than 128
-test_data_loader = data.DataLoader(test_dataset, batch_size=128, shuffle=False, drop_last=False)
-
 def eval_model(model, data_loader):
     model.eval()  # Set model to eval mode
     true_preds, num_preds = 0.0, 0.0
@@ -345,9 +146,6 @@ def eval_model(model, data_loader):
 
     acc = true_preds / num_preds
     print(f"Accuracy of the model: {100.0 * acc:4.2f}%")
-
-
-eval_model(model, test_data_loader)
 
 
 @torch.no_grad()  # Decorator, same effect as "with torch.no_grad(): ..." over the whole function.
@@ -386,5 +184,202 @@ def visualize_classification(model, data, label):
     plt.grid(False)
 
 
-visualize_classification(model, dataset.data, dataset.label)
-plt.show()
+if __name__ == '__main__':
+    torch.manual_seed(42)  # Setting the seed
+
+    x = Tensor(2, 3, 4)
+    print(x)
+
+    x = Tensor([[1, 2], [3, 4]])
+    print(x)
+
+    x = torch.rand(2, 3, 4)
+    print(x)
+
+    shape = x.shape
+    print("Shape:", x.shape)
+
+    size = x.size()
+    print("Size:", size)
+
+    dim1, dim2, dim3 = x.size()
+    print("Size:", dim1, dim2, dim3)
+
+    np_arr = np.array([[1, 2], [3, 4]])
+    tensor = torch.from_numpy(np_arr)
+
+    print("Numpy array:", np_arr)
+    print("PyTorch tensor:", tensor)
+
+    tensor = torch.arange(4)
+    np_arr = tensor.numpy()
+
+    print("PyTorch tensor:", tensor)
+    print("Numpy array:", np_arr)
+
+    x1 = torch.rand(2, 3)
+    x2 = torch.rand(2, 3)
+    y = x1 + x2
+
+    print("X1", x1)
+    print("X2", x2)
+    print("Y", y)
+
+    x1 = torch.rand(2, 3)
+    x2 = torch.rand(2, 3)
+    print("X1 (before)", x1)
+    print("X2 (before)", x2)
+
+    x2.add_(x1)
+    print("X1 (after)", x1)
+    print("X2 (after)", x2)
+
+    x = torch.arange(6)
+    print("X", x)
+
+    x = x.view(2, 3)
+    print("X", x)
+
+    x = x.permute(1, 0)  # Swapping dimension 0 and 1
+    print("X", x)
+
+    x = torch.arange(6)
+    x = x.view(2, 3)
+    print("X", x)
+
+    W = torch.arange(9).view(3, 3)  # We can also stack multiple operations in a single line
+    print("W", W)
+
+    h = torch.matmul(x, W)  # Verify the result by calculating it by hand too!
+    print("h", h)
+
+    x = torch.arange(12).view(3, 4)
+    print("X", x)
+
+    print(x[:, 1])  # Second column
+
+    print(x[0])  # First row
+
+    print(x[:2, -1])  # First two rows, last column
+
+    print(x[1:3, :])  # Middle two rows
+
+    x = torch.ones((3,))
+    print(x.requires_grad)
+
+    x.requires_grad_(True)
+    print(x.requires_grad)
+
+    x = torch.arange(3, dtype=torch.float32, requires_grad=True)  # Only float tensors can have gradients
+    print("X", x)
+
+    a = x + 2
+    b = a**2
+    c = b + 3
+    y = c.mean()
+    print("Y", y)
+
+    y.backward()
+
+    print(x.grad)
+
+    gpu_avail = torch.cuda.is_available()
+    print(f"Is the GPU available? {gpu_avail}")
+
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    print("Device", device)
+
+    x = torch.zeros(2, 3)
+    x = x.to(device)
+    print("X", x)
+
+    x = torch.randn(5000, 5000)
+
+    # CPU version
+    start_time = time.time()
+    _ = torch.matmul(x, x)
+    end_time = time.time()
+    print(f"CPU time: {(end_time - start_time):6.5f}s")
+
+    # GPU version
+    if torch.cuda.is_available():
+        x = x.to(device)
+        # CUDA is asynchronous, so we need to use different timing functions
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
+        _ = torch.matmul(x, x)
+        end.record()
+        torch.cuda.synchronize()  # Waits for everything to finish running on the GPU
+        print(f"GPU time: {0.001 * start.elapsed_time(end):6.5f}s")  # Milliseconds to seconds
+
+    # GPU operations have a separate seed we also want to set
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(42)
+        torch.cuda.manual_seed_all(42)
+
+    # Additionally, some operations on a GPU are implemented stochastic for efficiency
+    # We want to ensure that all operations are deterministic on GPU (if used) for reproducibility
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+    model = SimpleClassifier(num_inputs=2, num_hidden=4, num_outputs=1)
+    # Printing a module shows all its submodules
+    print(model)
+
+    for name, param in model.named_parameters():
+        print(f"Parameter {name}, shape {param.shape}")
+
+    dataset = XORDataset(size=200)
+    print("Size of dataset:", len(dataset))
+    print("Data point 0:", dataset[0])
+
+    visualize_samples(dataset.data, dataset.label)
+    plt.show()
+
+    data_loader = data.DataLoader(dataset, batch_size=8, shuffle=True)
+
+    data_inputs, data_labels = next(iter(data_loader))
+
+    # The shape of the outputs are [batch_size, d_1,...,d_N] where d_1,...,d_N are the
+    # dimensions of the data point returned from the dataset class
+    print("Data inputs", data_inputs.shape, "\n", data_inputs)
+    print("Data labels", data_labels.shape, "\n", data_labels)
+
+    loss_module = nn.BCEWithLogitsLoss()
+
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
+
+    train_dataset = XORDataset(size=1000)
+    train_data_loader = data.DataLoader(train_dataset, batch_size=128, shuffle=True)
+
+    # Push model to device. Has to be only done once
+    model.to(device)
+
+    train_model(model, optimizer, train_data_loader, loss_module)
+
+    state_dict = model.state_dict()
+    print(state_dict)
+
+    # torch.save(object, filename). For the filename, any extension can be used
+    torch.save(state_dict, "our_model.tar")
+
+    # Load state dict from the disk (make sure it is the same name as above)
+    state_dict = torch.load("our_model.tar")
+
+    # Create a new model and load the state
+    new_model = SimpleClassifier(num_inputs=2, num_hidden=4, num_outputs=1)
+    new_model.load_state_dict(state_dict)
+
+    # Verify that the parameters are the same
+    print("Original model\n", model.state_dict())
+    print("\nLoaded model\n", new_model.state_dict())
+
+    test_dataset = XORDataset(size=500)
+    # drop_last -> Don't drop the last batch although it is smaller than 128
+    test_data_loader = data.DataLoader(test_dataset, batch_size=128, shuffle=False, drop_last=False)
+
+    eval_model(model, test_data_loader)
+
+    visualize_classification(model, dataset.data, dataset.label)
+    plt.show()
