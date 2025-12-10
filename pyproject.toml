@@ -1,0 +1,17 @@
+[project]
+name = "advaiapp1-final"
+version = "0.1.0"
+description = "Assignments for Advanced Artifical Intelligence Applications I."
+readme = "README.md"
+authors = [
+    { name = "darabsp", email = "51314762+darabsp@users.noreply.github.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+advaiapp1-final = "advaiapp1_final:main"
+
+[build-system]
+requires = ["uv_build>=0.9.4,<0.10.0"]
+build-backend = "uv_build"
