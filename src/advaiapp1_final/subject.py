@@ -11,10 +11,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.optim as optim
 import torch.utils.data as data
 from matplotlib.colors import to_rgba
 from torch import Tensor
 from tqdm.auto import tqdm
+
+
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 
 class MyModule(nn.Module):
@@ -28,14 +32,14 @@ class MyModule(nn.Module):
 
 
 class SimpleClassifier(nn.Module):
-    def __init__(self, num_inputs, num_hidden, num_outputs):
+    def __init__(self, num_inputs: int, num_hidden: int, num_outputs: int) -> None:
         super().__init__()
         # Initialize the modules we need to build the network
         self.linear1 = nn.Linear(num_inputs, num_hidden)
         self.act_fn = nn.Tanh()
         self.linear2 = nn.Linear(num_hidden, num_outputs)
 
-    def forward(self, x):
+    def forward(self, x: Tensor) -> Tensor:
         # Perform the calculation of the model to determine the prediction
         x = self.linear1(x)
         x = self.act_fn(x)
@@ -43,21 +47,20 @@ class SimpleClassifier(nn.Module):
         return x
 
 
-class XORDataset(data.Dataset):
-    def __init__(self, size, std=0.1):
+class XORDataset(data.Dataset[tuple[Tensor, Tensor]]):
+    def __init__(self, size: int, std: float = 0.1) -> None:
         """XORDataset.
 
         Args:
-            size: Number of data points we want to generate
-            std: Standard deviation of the noise (see generate_continuous_xor function)
-
+            size (int): Number of data points we want to generate
+            std (float): Standard deviation of the noise (see generate_continuous_xor function)
         """
         super().__init__()
         self.size = size
         self.std = std
         self.generate_continuous_xor()
 
-    def generate_continuous_xor(self):
+    def generate_continuous_xor(self) -> None:
         # Each data point in the XOR dataset has two variables, x and y, that can be either 0 or 1
         # The label is their XOR combination, i.e. 1 if only x or only y is 1 while the other is 0.
         # If x=y, the label is 0.
@@ -69,11 +72,11 @@ class XORDataset(data.Dataset):
         self.data = data
         self.label = label
 
-    def __len__(self):
+    def __len__(self) -> int:
         # Number of data point we have. Alternatively self.data.shape[0], or self.label.shape[0]
         return self.size
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> tuple[Tensor, Tensor]:
         # Return the idx-th data point of the dataset
         # If we have multiple things to return (data point and label), we can return them as tuple
         data_point = self.data[idx]
@@ -81,7 +84,10 @@ class XORDataset(data.Dataset):
         return data_point, data_label
 
 
-def visualize_samples(data, label):
+def visualize_samples(
+    data: Tensor | np.ndarray,
+    label: Tensor | np.ndarray,
+) -> None:
     if isinstance(data, Tensor):
         data = data.cpu().numpy()
     if isinstance(label, Tensor):
@@ -98,7 +104,13 @@ def visualize_samples(data, label):
     plt.legend()
 
 
-def train_model(model, optimizer, data_loader, loss_module, num_epochs=100):
+def train_model(
+    model: nn.Module,
+    optimizer: optim.Optimizer,
+    data_loader: data.DataLoader[tuple[Tensor, Tensor]],
+    loss_module: nn.Module,
+    num_epochs: int = 100,
+) -> None:
     # Set model to train mode
     model.train()
 
@@ -127,7 +139,10 @@ def train_model(model, optimizer, data_loader, loss_module, num_epochs=100):
             optimizer.step()
 
 
-def eval_model(model, data_loader):
+def eval_model(
+    model: nn.Module,
+    data_loader: data.DataLoader[tuple[Tensor, Tensor]],
+) -> None:
     model.eval()  # Set model to eval mode
     true_preds, num_preds = 0.0, 0.0
 
@@ -149,7 +164,11 @@ def eval_model(model, data_loader):
 
 
 @torch.no_grad()  # Decorator, same effect as "with torch.no_grad(): ..." over the whole function.
-def visualize_classification(model, data, label):
+def visualize_classification(
+    model: nn.Module,
+    data: Tensor | np.ndarray,
+    label: Tensor | np.ndarray,
+) -> None:
     if isinstance(data, Tensor):
         data = data.cpu().numpy()
     if isinstance(label, Tensor):
