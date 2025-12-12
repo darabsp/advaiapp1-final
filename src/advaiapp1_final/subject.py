@@ -33,6 +33,14 @@ class MyModule(nn.Module):
 
 class SimpleClassifier(nn.Module):
     def __init__(self, num_inputs: int, num_hidden: int, num_outputs: int) -> None:
+        """
+        Simple neural network model for classification.
+
+        Args:
+            num_inputs (int): Number of input dimensions
+            num_hidden (int): Number of neurons in hidden layer
+            num_outputs (int): Number of output dimensions
+        """
         super().__init__()
         # Initialize the modules we need to build the network
         self.linear1 = nn.Linear(num_inputs, num_hidden)
@@ -49,7 +57,8 @@ class SimpleClassifier(nn.Module):
 
 class XORDataset(data.Dataset[tuple[Tensor, Tensor]]):
     def __init__(self, size: int, std: float = 0.1) -> None:
-        """XORDataset.
+        """
+        XORDataset.
 
         Args:
             size (int): Number of data points we want to generate
@@ -88,6 +97,13 @@ def visualize_samples(
     data: Tensor | np.ndarray,
     label: Tensor | np.ndarray,
 ) -> None:
+    """
+    Visualize samples with pyplot.
+
+    Args:
+        data (Tensor | ndarray): Sample data to visualize
+        label (Tensor | ndarray): Ground truth labels of sample data
+    """
     if isinstance(data, Tensor):
         data = data.cpu().numpy()
     if isinstance(label, Tensor):
@@ -111,6 +127,16 @@ def train_model(
     loss_module: nn.Module,
     num_epochs: int = 100,
 ) -> None:
+    """
+    Train neural network model.
+
+    Args:
+        model (Module): Neural network model to train, this argument will be changed in-place
+        optimizer (Optimizer): Optimizer to update model parameters
+        data_loader (DataLoader[tuple[Tensor, Tensor]]): DataLoader providing training data and labels
+        loss_module (Module): Loss function module
+        num_epochs (int): Number of training epochs
+    """
     # Set model to train mode
     model.train()
 
@@ -143,6 +169,13 @@ def eval_model(
     model: nn.Module,
     data_loader: data.DataLoader[tuple[Tensor, Tensor]],
 ) -> None:
+    """
+    Evaluate model by accuracy.
+
+    Args:
+        model (Module): Neural network model to evaluate
+        data_loader (DataLoader[tuple[Tensor, Tensor]]): DataLoader providing test data and labels
+    """
     model.eval()  # Set model to eval mode
     true_preds, num_preds = 0.0, 0.0
 
@@ -169,6 +202,14 @@ def visualize_classification(
     data: Tensor | np.ndarray,
     label: Tensor | np.ndarray,
 ) -> None:
+    """
+    Visualize classification of data.
+
+    Args:
+        model (Module): Neural network model to be used in classification
+        data (Tensor | ndarray): Data to be classified
+        label (Tensor | ndarray): Ground truth labels of data
+    """
     if isinstance(data, Tensor):
         data = data.cpu().numpy()
     if isinstance(label, Tensor):
