@@ -5,15 +5,14 @@
 # This file is licensed under CC BY-SA 4.0.
 
 import time
-
 import matplotlib.pyplot as plt
-
+from matplotlib.colors import to_rgba
+from matplotlib.figure import Figure
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data as data
-from matplotlib.colors import to_rgba
 from torch import Tensor
 from tqdm.auto import tqdm
 
@@ -96,7 +95,7 @@ class XORDataset(data.Dataset[tuple[Tensor, Tensor]]):
 def visualize_samples(
     data: Tensor | np.ndarray,
     label: Tensor | np.ndarray,
-) -> None:
+) -> Figure:
     """
     Visualize samples with pyplot.
 
@@ -111,13 +110,16 @@ def visualize_samples(
     data_0 = data[label == 0]
     data_1 = data[label == 1]
 
-    plt.figure(figsize=(4, 4))
-    plt.scatter(data_0[:, 0], data_0[:, 1], edgecolor="#333", label="Class 0")
-    plt.scatter(data_1[:, 0], data_1[:, 1], edgecolor="#333", label="Class 1")
-    plt.title("Dataset samples")
-    plt.ylabel(r"$x_2$")
-    plt.xlabel(r"$x_1$")
-    plt.legend()
+    fig = plt.figure(figsize=(4, 4))
+    axes = fig.add_subplot()
+    axes.scatter(data_0[:, 0], data_0[:, 1], edgecolor="#333", label="Class 0")
+    axes.scatter(data_1[:, 0], data_1[:, 1], edgecolor="#333", label="Class 1")
+    axes.set_title("Dataset samples")
+    axes.set_ylabel(r"$x_2$")
+    axes.set_xlabel(r"$x_1$")
+    axes.legend()
+
+    return fig
 
 
 def train_model(
@@ -206,7 +208,7 @@ def visualize_classification(
     model: nn.Module,
     data: Tensor | np.ndarray,
     label: Tensor | np.ndarray,
-) -> None:
+) -> Figure:
     """
     Visualize classification of data.
 
@@ -222,13 +224,14 @@ def visualize_classification(
     data_0 = data[label == 0]
     data_1 = data[label == 1]
 
-    plt.figure(figsize=(4, 4))
-    plt.scatter(data_0[:, 0], data_0[:, 1], edgecolor="#333", label="Class 0")
-    plt.scatter(data_1[:, 0], data_1[:, 1], edgecolor="#333", label="Class 1")
-    plt.title("Dataset samples")
-    plt.ylabel(r"$x_2$")
-    plt.xlabel(r"$x_1$")
-    plt.legend()
+    fig = plt.figure(figsize=(4, 4))
+    axes = fig.add_subplot()
+    axes.scatter(data_0[:, 0], data_0[:, 1], edgecolor="#333", label="Class 0")
+    axes.scatter(data_1[:, 0], data_1[:, 1], edgecolor="#333", label="Class 1")
+    axes.set_title("Dataset samples")
+    axes.set_ylabel(r"$x_2$")
+    axes.set_xlabel(r"$x_1$")
+    axes.legend()
 
     # Let's make use of a lot of operations we have learned above
     model.to(device)
@@ -245,8 +248,10 @@ def visualize_classification(
     output_image = (
         output_image.cpu().numpy()
     )  # Convert to numpy array. This only works for tensors on CPU, hence first push to CPU
-    plt.imshow(output_image, origin="lower", extent=(-0.5, 1.5, -0.5, 1.5))
-    plt.grid(False)
+    axes.imshow(output_image, origin="lower", extent=(-0.5, 1.5, -0.5, 1.5))
+    axes.grid(False)
+
+    return fig
 
 
 if __name__ == '__main__':
@@ -399,8 +404,8 @@ if __name__ == '__main__':
     print("Size of dataset:", len(dataset))
     print("Data point 0:", dataset[0])
 
-    visualize_samples(dataset.data, dataset.label)
-    plt.show()
+    sample_fig = visualize_samples(dataset.data, dataset.label)
+    sample_fig.show()
 
     data_loader = data.DataLoader(dataset, batch_size=8, shuffle=True)
 
@@ -446,5 +451,7 @@ if __name__ == '__main__':
 
     eval_model(model, test_data_loader)
 
-    visualize_classification(model, dataset.data, dataset.label)
-    plt.show()
+    classified_fig = visualize_classification(model, dataset.data, dataset.label)
+    classified_fig.show()
+
+    plt.waitforbuttonpress()
