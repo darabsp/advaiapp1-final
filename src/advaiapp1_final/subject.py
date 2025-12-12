@@ -4,6 +4,9 @@
 # https://github.com/Lightning-AI/tutorials/blob/main/course_UvA-DL/01-introduction-to-pytorch/notebook.py
 # This file is licensed under CC BY-SA 4.0.
 
+# pyright: reportUnknownMemberType=false
+# pyright: reportUntypedFunctionDecorator=false
+
 import time
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgba
@@ -18,16 +21,6 @@ from tqdm.auto import tqdm
 
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
-
-class MyModule(nn.Module):
-    def __init__(self):
-        super().__init__()
-        # Some init for my module
-
-    def forward(self, x):
-        # Function for performing the calculation of the module.
-        pass
 
 
 class SimpleClassifier(nn.Module):
@@ -143,7 +136,7 @@ def train_model(
     model.train()
 
     # Training loop
-    for epoch in tqdm(range(num_epochs)):
+    for epoch in tqdm(range(num_epochs)): # pyright: ignore[reportUnusedVariable]
         for data_inputs, data_labels in data_loader:
             # Step 1: Move input data to device (only strictly necessary if we use GPU)
             data_inputs = data_inputs.to(device)
