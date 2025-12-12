@@ -168,13 +168,16 @@ def train_model(
 def eval_model(
     model: nn.Module,
     data_loader: data.DataLoader[tuple[Tensor, Tensor]],
-) -> None:
+) -> float:
     """
     Evaluate model by accuracy.
 
     Args:
         model (Module): Neural network model to evaluate
         data_loader (DataLoader[tuple[Tensor, Tensor]]): DataLoader providing test data and labels
+
+    Returns:
+        acc (float): Accuracy of neural network model
     """
     model.eval()  # Set model to eval mode
     true_preds, num_preds = 0.0, 0.0
@@ -194,6 +197,8 @@ def eval_model(
 
     acc = true_preds / num_preds
     print(f"Accuracy of the model: {100.0 * acc:4.2f}%")
+
+    return acc
 
 
 @torch.no_grad()  # Decorator, same effect as "with torch.no_grad(): ..." over the whole function.
