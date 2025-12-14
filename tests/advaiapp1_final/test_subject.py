@@ -11,9 +11,9 @@ from copy import deepcopy
 from advaiapp1_final.subject import (
     SimpleClassifier,
     XORDataset,
+    visualize_samples,
     train_model,
     eval_model,
-    visualize_samples,
     visualize_classification,
 )
 
@@ -32,7 +32,9 @@ def simple_classifier():
     return SimpleClassifier(2, 4, 1)
 
 @fixture
-def sgd_optimizer(simple_classifier: SimpleClassifier):
+def sgd_optimizer(
+    simple_classifier: SimpleClassifier,
+):
     return SGD(simple_classifier.parameters())
 
 @fixture
@@ -40,11 +42,15 @@ def bce_with_logits_loss_module():
     return BCEWithLogitsLoss()
 
 @fixture
-def xor_dataset(dataset_length: int):
+def xor_dataset(
+    dataset_length: int,
+):
     return XORDataset(dataset_length)
 
 @fixture
-def data_loader_with_xor_dataset(xor_dataset: XORDataset):
+def data_loader_with_xor_dataset(
+    xor_dataset: XORDataset,
+):
     return DataLoader(xor_dataset, batch_size=128, shuffle=True)
 
 

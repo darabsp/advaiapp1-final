@@ -1,4 +1,4 @@
-from pytest import MonkeyPatch, fixture
+from pytest import fixture, MonkeyPatch
 
 import matplotlib
 from pathlib import Path
