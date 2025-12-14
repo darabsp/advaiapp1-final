@@ -1,6 +1,7 @@
 # pyright: reportUnknownMemberType=false
 
 from matplotlib import pyplot as plt
+from pathlib import Path
 import torch
 from torch import nn
 from torch import optim
@@ -29,9 +30,12 @@ def main() -> None:
 
     state_dict = model.state_dict()
 
-    torch.save(state_dict, "our_model.tar")
+    output_dir = Path("out/")
+    if not output_dir.is_dir():
+        output_dir.mkdir()
+    torch.save(state_dict, output_dir.joinpath("our_model.tar"))
 
-    state_dict = torch.load("our_model.tar")
+    state_dict = torch.load(output_dir.joinpath("our_model.tar"))
 
     new_model = SimpleClassifier(num_inputs=2, num_hidden=4, num_outputs=1)
     new_model.load_state_dict(state_dict)
