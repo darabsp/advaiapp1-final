@@ -15,6 +15,12 @@ uv sync
 uv run advaiapp1-final
 ```
 
+### pytest
+
+```sh
+uv run pytest
+```
+
 ## License
 
 変更元のソースコードはCC BY-SAライセンスによって公開されているため ([参照](https://github.com/Lightning-AI/tutorials/blob/main/course_UvA-DL/01-introduction-to-pytorch/.meta.yml)), 本リポジトリについてもCC BY-SA 4.0で公開します.
