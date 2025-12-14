@@ -1,12 +1,12 @@
 from pytest import fixture
 
+from copy import deepcopy
 import matplotlib
 import torch
 from torch import Size, Tensor
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import SGD
 from torch.utils.data import DataLoader
-from copy import deepcopy
 
 from advaiapp1_final.subject import (
     SimpleClassifier,
