@@ -32,4 +32,4 @@ class TestMain():
     ):
         main()
 
-        assert tmp_path.joinpath("our_model").with_suffix(".tar").exists()
+        assert tmp_path.joinpath("out/our_model.tar").exists()
