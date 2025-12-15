@@ -1,6 +1,6 @@
 # pyright: reportUnknownMemberType=false
 
-from matplotlib.pyplot import waitforbuttonpress
+from matplotlib import pyplot as plt
 from pathlib import Path
 import torch
 from torch.nn import BCEWithLogitsLoss
@@ -59,4 +59,4 @@ def main() -> None:
     classified_fig = visualize_classification(model, dataset.data, dataset.label)
     classified_fig.show()
 
-    waitforbuttonpress()
+    plt.waitforbuttonpress()
