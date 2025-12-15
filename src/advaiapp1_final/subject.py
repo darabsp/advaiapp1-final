@@ -5,24 +5,25 @@
 # This file is licensed under CC BY-SA 4.0.
 
 # pyright: reportUnknownMemberType=false
+# pyright: reportUnknownVariableType=false
 # pyright: reportUntypedFunctionDecorator=false
 
-import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgba
 from matplotlib.figure import Figure
-import numpy as np
+from matplotlib.pyplot import figure
+from numpy import ndarray
 import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.utils.data as data
 from torch import Tensor
+from torch.nn import Linear, Module, Tanh
+from torch.optim import Optimizer
+from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 
-class SimpleClassifier(nn.Module):
+class SimpleClassifier(Module):
     def __init__(self, num_inputs: int, num_hidden: int, num_outputs: int) -> None:
         """
         Simple neural network model for classification.
@@ -34,9 +35,9 @@ class SimpleClassifier(nn.Module):
         """
         super().__init__()
         # Initialize the modules we need to build the network
-        self.linear1 = nn.Linear(num_inputs, num_hidden)
-        self.act_fn = nn.Tanh()
-        self.linear2 = nn.Linear(num_hidden, num_outputs)
+        self.linear1 = Linear(num_inputs, num_hidden)
+        self.act_fn = Tanh()
+        self.linear2 = Linear(num_hidden, num_outputs)
 
     def forward(self, x: Tensor) -> Tensor:
         # Perform the calculation of the model to determine the prediction
@@ -46,7 +47,7 @@ class SimpleClassifier(nn.Module):
         return x
 
 
-class XORDataset(data.Dataset[tuple[Tensor, Tensor]]):
+class XORDataset(Dataset[tuple[Tensor, Tensor]]):
     def __init__(self, size: int, std: float = 0.1) -> None:
         """
         XORDataset.
@@ -85,15 +86,18 @@ class XORDataset(data.Dataset[tuple[Tensor, Tensor]]):
 
 
 def visualize_samples(
-    data: Tensor | np.ndarray,
-    label: Tensor | np.ndarray,
+    data: Tensor | ndarray,
+    label: Tensor | ndarray,
 ) -> Figure:
     """
     Visualize samples with pyplot.
 
     Args:
-        data (Tensor | ndarray): Sample data to visualize
-        label (Tensor | ndarray): Ground truth labels of sample data
+        data (torch.Tensor | numpy.ndarray): Sample data to visualize
+        label (torch.Tensor | numpy.ndarray): Ground truth labels of sample data
+
+    Returns:
+        fig (matplotlib.figure.Figure): Figure of sample data
     """
     if isinstance(data, Tensor):
         data = data.cpu().numpy()
@@ -102,7 +106,7 @@ def visualize_samples(
     data_0 = data[label == 0]
     data_1 = data[label == 1]
 
-    fig = plt.figure(figsize=(4, 4))
+    fig = figure(figsize=(4, 4))
     axes = fig.add_subplot()
     axes.scatter(data_0[:, 0], data_0[:, 1], edgecolor="#333", label="Class 0")
     axes.scatter(data_1[:, 0], data_1[:, 1], edgecolor="#333", label="Class 1")
@@ -115,20 +119,20 @@ def visualize_samples(
 
 
 def train_model(
-    model: nn.Module,
-    optimizer: optim.Optimizer,
-    data_loader: data.DataLoader[tuple[Tensor, Tensor]],
-    loss_module: nn.Module,
+    model: Module,
+    optimizer: Optimizer,
+    data_loader: DataLoader[tuple[Tensor, Tensor]],
+    loss_module: Module,
     num_epochs: int = 100,
 ) -> None:
     """
     Train neural network model.
 
     Args:
-        model (Module): Neural network model to train, this argument will be changed in-place
-        optimizer (Optimizer): Optimizer to update model parameters
-        data_loader (DataLoader[tuple[Tensor, Tensor]]): DataLoader providing training data and labels
-        loss_module (Module): Loss function module
+        model (torch.nn.Module): Neural network model to train, this argument will be changed in-place
+        optimizer (torch.optim.Optimizer): Optimizer to update model parameters
+        data_loader (torch.data.DataLoader[tuple[torch.Tensor, torch.Tensor]]): DataLoader providing training data and labels
+        loss_module (torch.nn.Module): Loss function module
         num_epochs (int): Number of training epochs
     """
     # Set model to train mode
@@ -160,15 +164,15 @@ def train_model(
 
 
 def eval_model(
-    model: nn.Module,
-    data_loader: data.DataLoader[tuple[Tensor, Tensor]],
+    model: Module,
+    data_loader: DataLoader[tuple[Tensor, Tensor]],
 ) -> float:
     """
     Evaluate model by accuracy.
 
     Args:
-        model (Module): Neural network model to evaluate
-        data_loader (DataLoader[tuple[Tensor, Tensor]]): DataLoader providing test data and labels
+        model (torch.nn.Module): Neural network model to evaluate
+        data_loader (torch.data.DataLoader[tuple[torch.Tensor, torch.Tensor]]): DataLoader providing test data and labels
 
     Returns:
         acc (float): Accuracy of neural network model
@@ -190,24 +194,25 @@ def eval_model(
             num_preds += data_labels.shape[0]
 
     acc = true_preds / num_preds
-    print(f"Accuracy of the model: {100.0 * acc:4.2f}%")
-
     return acc
 
 
 @torch.no_grad()  # Decorator, same effect as "with torch.no_grad(): ..." over the whole function.
 def visualize_classification(
-    model: nn.Module,
-    data: Tensor | np.ndarray,
-    label: Tensor | np.ndarray,
+    model: Module,
+    data: Tensor | ndarray,
+    label: Tensor | ndarray,
 ) -> Figure:
     """
     Visualize classification of data.
 
     Args:
-        model (Module): Neural network model to be used in classification
-        data (Tensor | ndarray): Data to be classified
-        label (Tensor | ndarray): Ground truth labels of data
+        model (torch.nn.Module): Neural network model to be used in classification
+        data (torch.Tensor | numpy.ndarray): Data to be classified
+        label (torch.Tensor | numpy.ndarray): Ground truth labels of data
+
+    Returns:
+        fig (matplotlib.figure.Figure): Figure of classified data
     """
     if isinstance(data, Tensor):
         data = data.cpu().numpy()
@@ -216,7 +221,7 @@ def visualize_classification(
     data_0 = data[label == 0]
     data_1 = data[label == 1]
 
-    fig = plt.figure(figsize=(4, 4))
+    fig = figure(figsize=(4, 4))
     axes = fig.add_subplot()
     axes.scatter(data_0[:, 0], data_0[:, 1], edgecolor="#333", label="Class 0")
     axes.scatter(data_1[:, 0], data_1[:, 1], edgecolor="#333", label="Class 1")
