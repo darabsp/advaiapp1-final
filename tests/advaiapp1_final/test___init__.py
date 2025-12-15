@@ -1,6 +1,6 @@
 from pytest import fixture, MonkeyPatch
 
-import matplotlib
+from matplotlib import use as mpl_use
 from matplotlib.figure import Figure
 from pathlib import Path
 
@@ -20,7 +20,7 @@ class TestMain():
             self.figure_show_count += 1
 
         # Tkinterが使えないんだが？？という不具合の対処
-        matplotlib.use("Agg")
+        mpl_use("Agg")
         monkeypatch.setattr("matplotlib.figure.Figure.show", increment_figure_show_count)
         # main()でwaitforbuttonpressしているのでそのままだとテストが進まない
         monkeypatch.setattr("matplotlib.pyplot.waitforbuttonpress", lambda: None)

@@ -1,7 +1,7 @@
 from pytest import fixture
 
 from copy import deepcopy
-import matplotlib
+from matplotlib import use as mpl_use
 import torch
 from torch import Size, Tensor
 from torch.nn import BCEWithLogitsLoss
@@ -21,7 +21,7 @@ from advaiapp1_final.subject import (
 # NOTE: Tkinterが使えないんだが？というエラーの抑制
 @fixture(autouse=True)
 def make_matplotlib_not_use_gui():
-    matplotlib.use("Agg")
+    mpl_use("Agg")
 
 @fixture
 def dataset_length():
