@@ -53,7 +53,8 @@ def main() -> None:
     test_dataset = XORDataset(size=500)
     test_data_loader = DataLoader(test_dataset, batch_size=128, shuffle=False, drop_last=False)
 
-    eval_model(model, test_data_loader)
+    accuracy = eval_model(model, test_data_loader)
+    print(f"Accuracy of the model: {100.0 * accuracy:4.2f}%")
 
     classified_fig = visualize_classification(model, dataset.data, dataset.label)
     classified_fig.show()
