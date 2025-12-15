@@ -93,8 +93,11 @@ def visualize_samples(
     Visualize samples with pyplot.
 
     Args:
-        data (Tensor | ndarray): Sample data to visualize
-        label (Tensor | ndarray): Ground truth labels of sample data
+        data (torch.Tensor | numpy.ndarray): Sample data to visualize
+        label (torch.Tensor | numpy.ndarray): Ground truth labels of sample data
+
+    Returns:
+        fig (matplotlib.figure.Figure): Figure of sample data
     """
     if isinstance(data, Tensor):
         data = data.cpu().numpy()
@@ -126,10 +129,10 @@ def train_model(
     Train neural network model.
 
     Args:
-        model (Module): Neural network model to train, this argument will be changed in-place
-        optimizer (Optimizer): Optimizer to update model parameters
-        data_loader (DataLoader[tuple[Tensor, Tensor]]): DataLoader providing training data and labels
-        loss_module (Module): Loss function module
+        model (torch.nn.Module): Neural network model to train, this argument will be changed in-place
+        optimizer (torch.optim.Optimizer): Optimizer to update model parameters
+        data_loader (torch.data.DataLoader[tuple[torch.Tensor, torch.Tensor]]): DataLoader providing training data and labels
+        loss_module (torch.nn.Module): Loss function module
         num_epochs (int): Number of training epochs
     """
     # Set model to train mode
@@ -168,8 +171,8 @@ def eval_model(
     Evaluate model by accuracy.
 
     Args:
-        model (Module): Neural network model to evaluate
-        data_loader (DataLoader[tuple[Tensor, Tensor]]): DataLoader providing test data and labels
+        model (torch.nn.Module): Neural network model to evaluate
+        data_loader (torch.data.DataLoader[tuple[torch.Tensor, torch.Tensor]]): DataLoader providing test data and labels
 
     Returns:
         acc (float): Accuracy of neural network model
@@ -204,9 +207,12 @@ def visualize_classification(
     Visualize classification of data.
 
     Args:
-        model (Module): Neural network model to be used in classification
-        data (Tensor | ndarray): Data to be classified
-        label (Tensor | ndarray): Ground truth labels of data
+        model (torch.nn.Module): Neural network model to be used in classification
+        data (torch.Tensor | numpy.ndarray): Data to be classified
+        label (torch.Tensor | numpy.ndarray): Ground truth labels of data
+
+    Returns:
+        fig (matplotlib.figure.Figure): Figure of classified data
     """
     if isinstance(data, Tensor):
         data = data.cpu().numpy()
